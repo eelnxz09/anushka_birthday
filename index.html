@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Happy Birthday Anushka!</title>
+    
+    <!-- React & ReactDOM -->
+    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+    
+    <!-- Babel for JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Fredoka:wght@300;400;600&family=Permanent+Marker&family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Fredoka', sans-serif;
+            background-color: #0f0c29;
+            background-image: linear-gradient(315deg, #0f0c29 0%, #302b63 74%, #24243e 100%);
+            color: white;
+            overflow-x: hidden;
+            touch-action: pan-y;
+            overscroll-behavior: none;
+        }
+        
+        .comic-font { font-family: 'Bangers', cursive; letter-spacing: 2px; }
+        .marker-font { font-family: 'Permanent Marker', cursive; }
+        .tech-font { font-family: 'Orbitron', sans-serif; }
+
+        /* Glitch Effect Text */
+        .glitch { position: relative; color: white; }
+        .glitch::before, .glitch::after {
+            content: attr(data-text); position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+        }
+        .glitch::before {
+            left: 2px; text-shadow: -1px 0 #ff00c1; clip: rect(24px, 550px, 90px, 0);
+            animation: glitch-anim-2 3s infinite linear alternate-reverse;
+        }
+        .glitch::after {
+            left: -2px; text-shadow: -1px 0 #00fff9; clip: rect(85px, 550px, 140px, 0);
+            animation: glitch-anim 2.5s infinite linear alternate-reverse;
+        }
+
+        @keyframes glitch-anim {
+            0% { clip: rect(11px, 9999px, 88px, 0); }
+            50% { clip: rect(89px, 9999px, 26px, 0); }
+            100% { clip: rect(44px, 9999px, 11px, 0); }
+        }
+        @keyframes glitch-anim-2 {
+            0% { clip: rect(65px, 9999px, 100px, 0); }
+            50% { clip: rect(10px, 9999px, 55px, 0); }
+            100% { clip: rect(32px, 9999px, 20px, 0); }
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0); opacity: 0; }
+            80% { transform: scale(1.1); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .pop-in { animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+
+        @keyframes flame-flicker {
+            0%, 100% { transform: scale(1) rotate(-2deg); opacity: 0.9; }
+            50% { transform: scale(1.1) rotate(2deg); opacity: 1; }
+        }
+        .flame { animation: flame-flicker 0.5s infinite alternate; transform-origin: center bottom; }
+
+        .perspective-1000 { perspective: 1000px; }
+        .transform-style-3d { transform-style: preserve-3d; }
+        .backface-hidden { backface-visibility: hidden; }
+        .rotate-y-180 { transform: rotateY(180deg); }
+
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #121212; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #555; border-radius: 3px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #1DB954; }
+        
+        .confetti {
+            position: fixed; width: 10px; height: 10px; background-color: #f00; animation: fall linear forwards; z-index: 50;
+        }
+        @keyframes fall { to { transform: translateY(100vh) rotate(720deg); } }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        const CUSTOM_DATA = {
+            intro: {
+                title: "HEY ANUSHKA! 🕷️",
+                subtitle: "Ready to enter the Spider-Verse?",
+                message: "Across every universe, you're the one I'd choose. I've prepared a little adventure for you. Suit up!"
+            },
+            letter1: {
+                title: "Transmission Incoming... 🕸️",
+                content: "Dearest Anushka,\n\nIn a multiverse of infinite possibilities, I'm just lucky to be in the one where you exist. You're my Gwen, my partner in crime, and the best part of my story.\n\nLike in Alice in Borderland, I'd take on any game just to be on your team.\n\nLet's make this year legendary.\n\nLove, Your Miles ❤️"
+            },
+            cake: {
+                instruction: "MISSION: BLOW THE CANDLES 🕯️",
+                subInstruction: "Tap 'Mic' to blow or tap the flames!",
+                cutInstruction: "NOW SLICE IT! 🗡️",
+                clearMessage: "GAME CLEARED! WISH GRANTED!"
+            },
+            playlist: {
+                embedUrls: [
+                    "https://open.spotify.com/embed/track/4ezXXcPdzmOwjfBTR3m2Zg?utm_source=generator",
+                    "https://open.spotify.com/embed/track/3lcRYiY6NbuxNTf5hjbyyu?utm_source=generator",
+                    "https://open.spotify.com/embed/track/3a0cGrLF6Ac1QqG3PCoIDY?utm_source=generator",
+                    "https://open.spotify.com/embed/track/11LmqTE2naFULdEP94AUBa?utm_source=generator"
+                ]
+            },
+            gallery: [
+                {
+                    src: "https://i.ibb.co/x83hDp22/584457643-859754223252881-6659586005813782089-n.jpg", 
+                    caption: "Jersey of Kings, worn by my Queen 👑⚽",
+                    isMadrid: true 
+                },
+                {
+                    src: "https://i.ibb.co/w8YrPvK/584488564-1373166784300922-2697341219482210990-n-1.jpg",
+                    caption: "The Prettiest Glitch in My Universe 🪐"
+                },
+                {
+                    src: "https://i.ibb.co/FkKspWpn/584886700-1496710041608713-3143058682684579910-n.jpg",
+                    caption: "My Clarity in the Noise ✨"
+                },
+                {
+                    src: "https://i.ibb.co/spJWpWjR/584906322-1154461956865255-2654512069089612473-n.jpg",
+                    caption: "Captured moments, forever memories 📸"
+                },
+                {
+                    src: "https://i.ibb.co/XksWCTmF/585582610-4384080378582967-719552040520584989-n.jpg",
+                    caption: "Every moment with you is magic ✨"
+                },
+                {
+                    src: "https://i.ibb.co/yLJktdf/588238527-1391045782726299-3915408892563803926-n.jpg",
+                    caption: "To many more adventures 🚀"
+                }
+            ],
+            wishes: [
+                { front: "https://placehold.co/200/ff0055/white?text=Spidey+Sense", back: "May your instincts always guide you right! 🕸️" },
+                { front: "https://placehold.co/200/00f2ff/black?text=Multiverse", back: "You are unique in every universe! ✨" },
+                { front: "https://placehold.co/200/000000/red?text=♥️+Queen", back: "The Queen of Hearts has nothing on you! 👑" }
+            ],
+            final: {
+                message: "Anushka,\n\nThe past 8 months with you have been the most unexpectedly beautiful glitch in my universe. I never saw you coming, but now I can't imagine a timeline without you.\n\nYou've turned my world upside down in the best way possible. You are my clarity in the noise, my peace in the chaos.\n\nI love you more than there are stars in the multiverse. Here's to us, and to you.\n\nHappy Birthday, my Superhero. 🕷️♥️"
+            }
+        };
+
+        const Icons = {
+            SpideyMask: () => <svg viewBox="0 0 24 24" className="w-8 h-8 text-red-500 fill-current" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-2-5.5l-2-2 1.41-1.41L10 11.67l4.59-4.59L16 8.5l-6 6z"/></svg>,
+            Spotify: () => <svg className="w-6 h-6 text-[#1DB954] fill-current" viewBox="0 0 24 24"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141 4.32-1.32 9.779-.6 13.5 1.62.42.239.6.84.3 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.4-1.02 15.419 1.38.54.3.72 1.02.42 1.56-.299.421-1.02.599-1.559.3z"/></svg>,
+            Music: () => <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" /></svg>,
+            Mic: () => <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" /></svg>,
+            Bow: () => (
+                <svg viewBox="0 0 24 24" className="w-16 h-16 text-pink-400 drop-shadow-md" fill="currentColor">
+                    <path d="M12 14c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z" />
+                    <path d="M18.5 9c-.9 0-1.7.4-2.2 1-.5-.6-1.3-1-2.2-1-.7 0-1.3.2-1.8.6-.5-.8-1.4-1.4-2.4-1.4-.9 0-1.8.4-2.3 1.1-.6-.7-1.4-1.1-2.3-1.1-1.7 0-3 1.3-3 3 0 2.5 4 5.5 7.6 8.6.2.2.5.2.7 0C14.5 14.5 18.5 11.5 18.5 9z" />
+                    <path d="M5.5 10c1.2 0 2.1.8 2.4 1.9-.5-1.1-1.4-2-2.4-1.9z" opacity="0.3"/>
+                    <path d="M17.5 7.5c1.5 1.5 2.5 4 2.5 4s-3-1-4-2.5c0 0 1.5-1.5 1.5-1.5zM6.5 7.5c-1.5 1.5-2.5 4-2.5 4s3-1 4-2.5c0 0-1.5-1.5-1.5-1.5z" />
+                </svg>
+            )
+        };
+
+        const Intro = ({ onNext }) => (
+            <div className="flex flex-col items-center justify-center min-h-screen text-center p-6 pop-in relative overflow-hidden">
+                <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none" style={{
+                    backgroundImage: 'radial-gradient(circle at center, transparent 0%, transparent 20%, white 20.5%, white 21%, transparent 21.5%), radial-gradient(circle at center, transparent 0%, transparent 40%, white 40.5%, white 41%, transparent 41.5%)',
+                    backgroundSize: '300px 300px'
+                }}></div>
+                <div className="text-7xl mb-4 animate-bounce drop-shadow-[0_0_10px_rgba(255,0,85,0.8)]">🕸️</div>
+                <div className="bg-gray-900 bg-opacity-80 backdrop-blur-md p-8 rounded-xl shadow-2xl max-w-md w-full border-2 border-cyan-400 relative z-10">
+                    <h1 className="text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-pink-500 to-cyan-500 mb-2 comic-font glitch" data-text={CUSTOM_DATA.intro.title}>{CUSTOM_DATA.intro.title}</h1>
+                    <h2 className="text-xl text-cyan-300 mb-6 font-bold">{CUSTOM_DATA.intro.subtitle}</h2>
+                    <p className="text-gray-300 mb-8 leading-relaxed font-mono text-sm border-l-4 border-pink-500 pl-4 text-left">{CUSTOM_DATA.intro.message}</p>
+                    <button onClick={onNext} className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-4 px-8 rounded-sm shadow-[4px_4px_0px_0px_rgba(0,242,255,1)] transform transition hover:-translate-y-1 hover:shadow-[6px_6px_0px_0px_rgba(0,242,255,1)] comic-font text-xl tracking-wider">ENTER THE VERSE 🕷️</button>
+                </div>
+            </div>
+        );
+
+        const Letter = ({ onNext }) => {
+            const [isOpen, setIsOpen] = useState(false);
+            return (
+                <div className="flex flex-col items-center justify-center min-h-screen p-4 pop-in relative">
+                    <h2 className="text-3xl text-cyan-400 font-bold mb-12 comic-font tracking-widest uppercase glow">{CUSTOM_DATA.letter1.title}</h2>
+                    <div className="relative w-80 h-64 cursor-pointer group" onClick={() => setIsOpen(true)}>
+                        <div className={`absolute bottom-0 w-full h-48 bg-white rounded-b-lg shadow-[0_0_20px_rgba(255,0,128,0.5)] z-10 transition-all duration-500 ${isOpen ? 'translate-y-20 opacity-0' : ''}`}>
+                             <div className="absolute inset-x-0 bottom-0 h-2 bg-cyan-400"></div>
+                        </div>
+                        <div className={`absolute top-16 w-full h-0 border-l-[160px] border-r-[160px] border-t-[100px] border-l-transparent border-r-transparent border-t-pink-500 rounded-t-lg z-20 origin-top transition-transform duration-700 ${isOpen ? 'rotate-x-180 -scale-y-100 opacity-0' : ''}`}></div>
+                        <div className={`absolute left-4 right-4 bg-yellow-100 p-6 shadow-xl transform rotate-1 transition-all duration-1000 ease-in-out z-0 ${isOpen ? '-translate-y-32 scale-110 z-30 rotate-0' : 'top-20 scale-90'}`}>
+                            <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-24 h-6 bg-red-500 opacity-80 rotate-2"></div>
+                            <div className="text-gray-800 text-xl mb-4 marker-font">Dearest Anushka,</div>
+                            <p className="text-gray-800 text-sm leading-relaxed whitespace-pre-wrap font-mono font-bold">{CUSTOM_DATA.letter1.content}</p>
+                            <div className="absolute bottom-2 right-4 text-2xl">🕷️</div>
+                        </div>
+                        {!isOpen && <div className="absolute top-40 left-1/2 transform -translate-x-1/2 z-30 bg-cyan-400 p-3 rounded-full shadow-lg animate-pulse border-2 border-black"><Icons.SpideyMask /></div>}
+                    </div>
+                    {isOpen && <div className="mt-32 pop-in"><button onClick={onNext} className="bg-pink-600 text-white px-8 py-3 rounded-full font-bold shadow-lg hover:bg-pink-500 transition border-2 border-white">ACCEPT MISSION &gt;</button></div>}
+                </div>
+            );
+        };
+
+        const Cake = ({ onNext }) => {
+            const [candles, setCandles] = useState([true, true, true]);
+            const [isCut, setIsCut] = useState(false);
+            const canvasRef = useRef(null);
+            const [isDrawing, setIsDrawing] = useState(false);
+            const [isMicActive, setIsMicActive] = useState(false);
+            const [totalDrawDistance, setTotalDrawDistance] = useState(0);
+
+            const allCandlesOut = candles.every(c => !c);
+
+            // Audio/Mic Logic
+            const startMic = async () => {
+                if(isMicActive) return;
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    setIsMicActive(true);
+                    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    const analyser = audioContext.createAnalyser();
+                    const microphone = audioContext.createMediaStreamSource(stream);
+                    microphone.connect(analyser);
+                    analyser.fftSize = 256;
+                    const bufferLength = analyser.frequencyBinCount;
+                    const dataArray = new Uint8Array(bufferLength);
+
+                    const checkBlow = () => {
+                        if (!candles.some(c => c)) return; 
+                        analyser.getByteFrequencyData(dataArray);
+                        let sum = 0;
+                        for(let i=0; i<bufferLength; i++) { sum += dataArray[i]; }
+                        let average = sum / bufferLength;
+                        
+                        if (average > 30) { 
+                            setCandles([false, false, false]);
+                            stream.getTracks().forEach(track => track.stop());
+                        } else {
+                            requestAnimationFrame(checkBlow);
+                        }
+                    };
+                    checkBlow();
+                } catch (e) {
+                    alert("Mic access denied or error. You can tap the flames to blow them out!");
+                }
+            };
+
+            const toggleCandle = (index) => {
+                const newCandles = [...candles];
+                newCandles[index] = !newCandles[index];
+                setCandles(newCandles);
+            };
+
+            const lastPoint = useRef({ x: 0, y: 0 });
+
+            const startDraw = (e) => {
+                if (!allCandlesOut || isCut) return;
+                e.preventDefault(); 
+                const canvas = canvasRef.current;
+                const ctx = canvas.getContext('2d');
+                const { offsetX, offsetY } = getCoordinates(e, canvas);
+                
+                setIsDrawing(true);
+                lastPoint.current = { x: offsetX, y: offsetY };
+                ctx.beginPath();
+                ctx.moveTo(offsetX, offsetY);
+                ctx.strokeStyle = '#00f2ff';
+                ctx.shadowBlur = 15;
+                ctx.shadowColor = '#00f2ff';
+                ctx.lineWidth = 8;
+                ctx.lineCap = 'round';
+            };
+
+            const draw = (e) => {
+                if (!isDrawing || isCut) return;
+                e.preventDefault(); 
+                const canvas = canvasRef.current;
+                const ctx = canvas.getContext('2d');
+                const { offsetX, offsetY } = getCoordinates(e, canvas);
+                
+                ctx.lineTo(offsetX, offsetY);
+                ctx.stroke();
+
+                const dist = Math.sqrt(Math.pow(offsetX - lastPoint.current.x, 2) + Math.pow(offsetY - lastPoint.current.y, 2));
+                setTotalDrawDistance(prev => {
+                    const newTotal = prev + dist;
+                    if (newTotal > 150) { 
+                        endDraw(true);
+                    }
+                    return newTotal;
+                });
+                lastPoint.current = { x: offsetX, y: offsetY };
+            };
+
+            const endDraw = (forceSuccess = false) => {
+                setIsDrawing(false);
+                if (forceSuccess === true) {
+                     setIsCut(true);
+                     if(canvasRef.current) {
+                        const ctx = canvasRef.current.getContext('2d');
+                        ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+                     }
+                }
+            };
+            
+            const handleContainerClick = () => {
+                if (allCandlesOut && !isCut) {
+                    setIsCut(true);
+                }
+            }
+
+            const getCoordinates = (e, canvas) => {
+                const rect = canvas.getBoundingClientRect();
+                let clientX, clientY;
+                if (e.changedTouches && e.changedTouches.length > 0) {
+                    clientX = e.changedTouches[0].clientX;
+                    clientY = e.changedTouches[0].clientY;
+                } else if (e.clientX) {
+                    clientX = e.clientX;
+                    clientY = e.clientY;
+                } else {
+                    return { offsetX: 0, offsetY: 0 };
+                }
+                return { 
+                    offsetX: (clientX - rect.left) * (canvas.width / rect.width), 
+                    offsetY: (clientY - rect.top) * (canvas.height / rect.height)
+                };
+            };
+            
+            const triggerConfetti = () => {
+                for(let i=0; i<50; i++) {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    confetti.style.left = Math.random() * 100 + 'vw';
+                    confetti.style.backgroundColor = ['#ff0055', '#00f2ff', '#ffffff'][Math.floor(Math.random()*3)];
+                    confetti.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                    document.body.appendChild(confetti);
+                    setTimeout(() => confetti.remove(), 5000);
+                }
+            };
+
+            return (
+                <div className="flex flex-col items-center justify-center min-h-screen p-4 text-center pop-in select-none w-full max-w-md mx-auto">
+                    {/* HUD */}
+                    <div className={`transition-all duration-500 border-2 rounded-lg p-6 backdrop-blur w-full relative mb-12 ${isCut ? 'border-green-500 bg-green-900 bg-opacity-80' : 'border-red-500 bg-black bg-opacity-50'}`}>
+                        <div className={`absolute -top-3 left-4 px-2 text-xs font-bold uppercase text-white ${isCut ? 'bg-green-600' : 'bg-red-600'}`}>
+                            {isCut ? 'STATUS: CLEARED' : (allCandlesOut ? 'PHASE 2: CUTTING' : 'PHASE 1: CANDLES')}
+                        </div>
+                        <h2 className="text-3xl font-bold text-white mb-2 comic-font tracking-widest">
+                            {isCut ? "STAGE COMPLETE!" : (allCandlesOut ? CUSTOM_DATA.cake.cutInstruction : CUSTOM_DATA.cake.instruction)}
+                        </h2>
+                        
+                        {!allCandlesOut && (
+                            <button onClick={startMic} className={`mt-2 text-xs font-mono border px-2 py-1 rounded ${isMicActive ? 'bg-green-500 text-black' : 'border-cyan-400 text-cyan-400 animate-pulse'}`}>
+                                {isMicActive ? "🎤 Listening..." : "🎤 Tap to Enable Mic & Blow"}
+                            </button>
+                        )}
+                        
+                        <p className={`font-mono text-xs whitespace-pre-wrap mt-2 ${isCut ? 'text-green-300' : 'text-red-300'}`}>
+                            {isCut ? "Well done, Player One. Proceed." : (allCandlesOut ? "Swipe across the cake to cut it!" : CUSTOM_DATA.cake.subInstruction)}
+                        </p>
+                    </div>
+
+                    {/* CAKE CONTAINER - STACKED FOR STABILITY */}
+                    <div className={`relative flex flex-col items-center justify-center w-full transition-all duration-1000 ${isCut ? 'translate-x-[-20px] rotate-[-5deg]' : ''}`} onClick={handleContainerClick}>
+                        
+                        {/* Candles Area */}
+                        <div className="h-16 w-full flex justify-center gap-8 relative z-20 mb-[-5px]">
+                             {[0, 1, 2].map((i) => (
+                                 <div key={i} className="w-2 h-16 bg-yellow-400 shadow-[0_0_10px_#ffcc00] relative">
+                                     {candles[i] && (
+                                         <div 
+                                            className="absolute -top-4 -left-1 w-4 h-6 bg-orange-500 rounded-full flame cursor-pointer shadow-[0_0_15px_#ff4500]"
+                                            onClick={(e) => { e.stopPropagation(); toggleCandle(i); }}
+                                         ></div>
+                                     )}
+                                 </div>
+                             ))}
+                        </div>
+
+                        {/* Top Layer */}
+                        <div className="w-48 h-20 bg-gradient-to-r from-pink-600 to-purple-600 rounded-t-xl border-4 border-b-0 border-cyan-500 relative z-10">
+                             <div className="absolute -bottom-2 w-full flex justify-around">
+                                <div className="w-4 h-6 bg-pink-600 rounded-b-full"></div>
+                                <div className="w-4 h-4 bg-purple-600 rounded-b-full"></div>
+                                <div className="w-4 h-8 bg-pink-600 rounded-b-full"></div>
+                             </div>
+                        </div>
+
+                        {/* Bottom Layer */}
+                        <div className="w-64 h-32 bg-gradient-to-r from-gray-900 to-gray-800 rounded-xl border-4 border-t-0 border-cyan-500 shadow-[0_0_20px_rgba(0,242,255,0.4)] relative z-0 flex items-center justify-center -mt-[2px]">
+                             <div className="text-6xl text-white opacity-90 drop-shadow-[0_0_5px_rgba(255,0,0,0.8)]">♥️</div>
+                        </div>
+
+                        {/* Canvas Overlay for Cutting */}
+                        {allCandlesOut && !isCut && (
+                            <canvas 
+                                ref={canvasRef}
+                                width={400}
+                                height={400}
+                                className="absolute top-[-50px] left-1/2 -translate-x-1/2 w-[120%] h-[120%] cursor-crosshair touch-none z-50"
+                                onMouseDown={startDraw}
+                                onMouseMove={draw}
+                                onMouseUp={() => endDraw(false)}
+                                onTouchStart={startDraw}
+                                onTouchMove={draw}
+                                onTouchEnd={() => endDraw(false)}
+                            />
+                        )}
+                    </div>
+
+                    {isCut && (
+                        <div className="pop-in w-full max-w-xs relative z-30 mt-8">
+                            <button onClick={onNext} className="w-full bg-gradient-to-r from-pink-500 to-red-500 text-white px-8 py-4 font-bold shadow-[4px_4px_0_white] hover:shadow-[2px_2px_0_white] hover:translate-x-[2px] hover:translate-y-[2px] transition border-2 border-white comic-font text-2xl uppercase tracking-widest">
+                                NEXT LEVEL &gt;&gt;
+                            </button>
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        const MusicPlayer = ({ onNext }) => {
+            return (
+                <div className="flex flex-col items-center justify-center min-h-screen p-4 pop-in bg-black">
+                    <div className="w-full max-w-md">
+                        <h2 className="text-3xl font-bold text-white mb-6 flex items-center justify-center gap-3 comic-font tracking-wide">
+                            <Icons.Spotify />
+                            <span className="text-pink-500">ANUSHKA'S</span> TOP MIX
+                        </h2>
+                        
+                        <div className="bg-[#121212] border-2 border-[#1DB954] rounded-xl p-6 shadow-[0_0_20px_rgba(29,185,84,0.3)] relative overflow-hidden">
+                            <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
+                            <div className="flex items-center justify-between mb-6 border-b border-gray-800 pb-4">
+                                <div><p className="text-gray-400 text-xs font-mono uppercase tracking-widest">Now Playing From</p><h3 className="text-white font-bold text-lg">Your Heart 🖤</h3></div>
+                                <div className="animate-pulse"><Icons.Music /></div>
+                            </div>
+                            <div className="space-y-4 max-h-[50vh] overflow-y-auto pr-2 custom-scrollbar">
+                                {CUSTOM_DATA.playlist.embedUrls.map((url, idx) => (
+                                    <div key={idx} className="transform transition hover:scale-[1.02]">
+                                        <iframe style={{borderRadius: "12px"}} src={url} width="100%" height="152" frameBorder="0" allowFullScreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className="mt-8 text-center">
+                            <button onClick={onNext} className="bg-[#1DB954] text-black px-8 py-3 rounded-full font-bold hover:bg-[#1ed760] transition tracking-widest shadow-lg flex items-center gap-2 mx-auto">
+                                VISIT MEMORY LANE <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" /></svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const MemoryGallery = ({ onNext }) => (
+            <div className="flex flex-col items-center justify-center min-h-screen p-4 pop-in relative">
+                <h2 className="text-4xl font-bold text-white mb-8 comic-font text-shadow-red">MEMORY LANE 📸</h2>
+                <div className="flex overflow-x-auto w-full max-w-md gap-4 p-4 snap-x scrollbar-hide">
+                    {CUSTOM_DATA.gallery.map((img, idx) => (
+                        <div key={idx} className="flex-shrink-0 w-64 h-80 bg-white p-2 transform rotate-1 hover:rotate-0 transition duration-300 shadow-xl snap-center relative">
+                            {/* Pookie Bow Overlay for Madrid Photo */}
+                            {img.isMadrid && (
+                                <div className="absolute -top-4 -right-4 z-20 animate-bounce transform rotate-12">
+                                    <Icons.Bow />
+                                </div>
+                            )}
+
+                            <div className="w-full h-[85%] bg-gray-200 overflow-hidden relative">
+                                <img src={img.src} className="w-full h-full object-cover" alt="Memory" onError={(e) => { e.target.src='https://placehold.co/300x400/000000/FFF?text=Image+Load+Error'; }} />
+                            </div>
+                            <div className="h-[15%] flex items-center justify-center text-center p-1 leading-tight font-handwriting text-black font-bold marker-font text-xs">
+                                {img.caption}
+                            </div>
+                        </div>
+                    ))}
+                </div>
+                <button onClick={onNext} className="mt-8 bg-transparent border-2 border-white text-white px-8 py-3 rounded-full font-bold hover:bg-white hover:text-black transition tracking-widest">COLLECT REWARDS &gt;</button>
+            </div>
+        );
+
+        const Cards = ({ onNext }) => {
+            const [flipped, setFlipped] = useState([false, false, false]);
+            const handleFlip = (index) => {
+                const newFlipped = [...flipped];
+                newFlipped[index] = !newFlipped[index];
+                setFlipped(newFlipped);
+            };
+            const allFlipped = flipped.every(f => f);
+            return (
+                <div className="flex flex-col items-center justify-center min-h-screen p-4 pop-in">
+                    <h2 className="text-4xl font-bold text-white mb-2 comic-font text-shadow-red">CHOOSE YOUR CARDS</h2>
+                    <p className="text-red-500 font-mono text-sm mb-8">GAME: HEARTS (SENTIMENTAL VALUE)</p>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                        {CUSTOM_DATA.wishes.map((wish, idx) => (
+                            <div key={idx} className="w-64 h-40 cursor-pointer perspective-1000 group" onClick={() => handleFlip(idx)}>
+                                <div className={`relative w-full h-full transition-transform duration-700 transform-style-3d ${flipped[idx] ? 'rotate-y-180' : ''}`}>
+                                    <div className="absolute w-full h-full backface-hidden rounded-xl shadow-2xl overflow-hidden border-2 border-gray-600 bg-gray-900 flex items-center justify-center">
+                                        <div className="w-full h-full opacity-50 bg-[url('https://www.transparenttextures.com/patterns/diagmonds-light.png')]"></div>
+                                        <div className="absolute text-6xl text-red-600 opacity-80">♥️</div>
+                                        <div className="absolute bottom-2 right-2 text-xs text-gray-500 font-mono">TAP TO FLIP</div>
+                                    </div>
+                                    <div className="absolute w-full h-full backface-hidden rotate-y-180 bg-white rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.2)] p-4 flex flex-col items-center justify-center text-center border-4 border-red-500">
+                                        <div className="text-red-600 text-2xl mb-1">♥️</div>
+                                        <p className="text-black font-bold marker-font text-lg leading-tight">{wish.back}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                    <div className="h-24 flex items-center justify-center w-full">
+                        {allFlipped ? (
+                            <div className="pop-in text-center w-full">
+                                <p className="mb-2 text-lg text-green-400 font-mono font-bold animate-pulse">ALL CARDS COLLECTED</p>
+                                <button onClick={onNext} className="bg-gradient-to-r from-red-600 to-pink-600 text-white px-10 py-4 rounded-sm shadow-[0_0_15px_#f00] font-bold comic-font text-xl transform hover:scale-105 transition">UNLOCK FINAL MESSAGE 🔓</button>
+                            </div>
+                        ) : <p className="text-gray-500 font-mono text-xs blinking-cursor">WAITING FOR PLAYER INPUT...</p>}
+                    </div>
+                </div>
+            );
+        };
+
+        const Final = () => {
+            const [sealed, setSealed] = useState(false);
+            return (
+                <div className="flex flex-col items-center justify-center min-h-screen p-6 pop-in relative overflow-hidden">
+                    <div className="absolute inset-0 pointer-events-none">
+                         {[...Array(15)].map((_, i) => (
+                             <div key={i} className="absolute text-white opacity-20 animate-float" style={{left: `${Math.random() * 100}%`, top: `${Math.random() * 100}%`, fontSize: `${Math.random() * 30 + 10}px`, animationDelay: `${Math.random() * 5}s`}}>{['🕸️', '♥️', '♠️', '🕷️'][i % 4]}</div>
+                         ))}
+                    </div>
+                    <div className="z-10 w-full max-w-lg">
+                        {!sealed ? (
+                            <div className="bg-gray-900 bg-opacity-90 border border-pink-500 p-8 rounded-2xl shadow-[0_0_30px_rgba(236,72,153,0.3)] pop-in backdrop-blur-sm">
+                                <div className="flex justify-between items-center mb-6">
+                                    <h3 className="text-2xl font-bold text-white comic-font tracking-wide">FINAL TRANSMISSION</h3>
+                                    <div className="text-3xl animate-spin-slow">🕷️</div>
+                                </div>
+                                <p className="text-gray-200 leading-relaxed whitespace-pre-line mb-8 font-mono text-sm border-l-2 border-cyan-400 pl-4">{CUSTOM_DATA.final.message}</p>
+                                <button onClick={() => setSealed(true)} className="w-full bg-cyan-500 hover:bg-cyan-400 text-black py-4 rounded-sm font-bold shadow-lg transition comic-font text-xl">SEAL WITH A KISS 💋</button>
+                            </div>
+                        ) : (
+                            <div className="bg-white p-10 rounded-sm shadow-[0_0_50px_rgba(255,255,255,0.5)] text-center pop-in border-8 border-black transform rotate-1">
+                                <div className="text-6xl mb-4 animate-bounce">🤟</div>
+                                <h2 className="text-4xl font-bold text-black mb-2 comic-font">GAME CLEARED!</h2>
+                                <p className="text-black marker-font text-xl mb-8">Happy Birthday Anushka!</p>
+                                <button onClick={() => window.location.reload()} className="bg-black text-white py-3 px-6 font-bold hover:bg-gray-800 transition">REPLAY MEMORY ↺</button>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            );
+        };
+
+        const App = () => {
+            const [stage, setStage] = useState(0);
+            const nextStage = () => setStage(prev => prev + 1);
+            return (
+                <div className="min-h-screen w-full mx-auto max-w-md shadow-2xl overflow-hidden relative border-x-2 border-gray-800">
+                    {stage === 0 && <Intro onNext={nextStage} />}
+                    {stage === 1 && <Letter onNext={nextStage} />}
+                    {stage === 2 && <Cake onNext={nextStage} />}
+                    {stage === 3 && <MusicPlayer onNext={nextStage} />}
+                    {stage === 4 && <MemoryGallery onNext={nextStage} />}
+                    {stage === 5 && <Cards onNext={nextStage} />}
+                    {stage === 6 && <Final />}
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
